@@ -103,8 +103,7 @@ class HabitDatabase:
         with self.conn:
              self.conn.execute("DELETE FROM completion_dates")  # Remove all dates from completed
              self.conn.execute("DELETE FROM habits")  # Eliminate all habits
-
-
+    
     def close(self):
         """Close the database connection."""
         self.conn.close()

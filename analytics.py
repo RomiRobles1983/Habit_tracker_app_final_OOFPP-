@@ -64,7 +64,7 @@ class Analytics:
     
     # Sort dates in ascending order
         dates.sort()
-        print(f"Fechas de completion: {dates}")
+        print(f"Ordered completion dates: {dates}")
     
         max_streak = 1
         current_streak = 1
@@ -73,40 +73,46 @@ class Analytics:
         if periodicity == "daily":
             for i in range(1, len(dates)):
                 date_diff = dates[i] - dates[i - 1]
+
+                print(f"Comparing {dates[i-1]} → {dates[i]} | Difference: {date_diff.days} days")
         
         # If the difference is one day, continue the streak
                 if date_diff == timedelta(days=1):
                     current_streak += 1
+                    print(f"Continuing streak: {current_streak}")
                 else:
             # If there is a gap, restart the streak.
                     max_streak = max(max_streak, current_streak)
+                    print(f"Streak broken! Max so far: {max_streak}")
                     current_streak = 1
+            max_streak = max(max_streak, current_streak)
 
         elif periodicity == "weekly":
-            last_date = dates[0]
-            last_week = last_date.isocalendar()[1]
-            last_year = last_date.isocalendar()[0]
+        # Get unique weeks in format (year, week)
+            weeks_with_completion = {(date.isocalendar()[0], date.isocalendar()[1]) for date in dates}
+            
+
+        # Order the weeks
+            sorted_weeks = sorted(weeks_with_completion)
+            
+
+            last_year, last_week = None, None
+            for year, week in sorted_weeks:
+                print(f"Checking week: {year}-W{week}")
+                if last_year is None:  # First week registered
+                    current_streak = 1
+                elif (year == last_year and week == last_week + 1) or (year > last_year and last_week == 52 and week == 1):
+                    current_streak += 1  # Week in a row, add to the streak
+                else:
+                    max_streak = max(max_streak, current_streak)
+                    current_streak = 1  # There was an empty week, restarting the streak
+
+                last_year, last_week = year, week  # Update last registered week
+                
+
+            max_streak = max(max_streak, current_streak)
+            print(f"Final max streak: {max_streak}")
         
-            for i in range(1, len(dates)):
-                current_date = dates[i]
-                current_week, current_year = current_date.isocalendar()[1], current_date.isocalendar()[0]
-
-            #  If the week changes, evaluate streaka
-                if (current_year, current_week) > (last_year, last_week):  
-                    if (current_year == last_year and current_week == last_week + 1) or \
-                       (current_year > last_year and last_week == 52 and current_week == 1):
-                        current_streak += 1  #Add if it is a consecutive week
-                    else:
-                        max_streak = max(max_streak, current_streak)
-                        current_streak = 1  # Reset streak if there is an empty week
-
-                # Update last registered week
-                    last_week, last_year = current_week, current_year
-
-
-    # Ensure that the latest streak is taken into account
-        max_streak = max(max_streak, current_streak)
-    
         return max_streak
 
     def close(self):

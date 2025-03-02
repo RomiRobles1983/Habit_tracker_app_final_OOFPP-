@@ -3,6 +3,7 @@ from db_manager import HabitDatabase
 from analytics import Analytics
 from habit_manager import HabitManager  
 from datetime import datetime
+import json
 
 # Single instance for interacting with the database and analysis
 db = HabitDatabase("habits.db")
@@ -13,6 +14,42 @@ def cli():
     """Habit Tracker CLI"""
     click.echo("Welcome to Habit Tracker CLI!")
     click.echo("Usage: main.py [OPTIONS] COMMAND [ARGS]...")
+
+
+@cli.command()
+def load_predefined_habits():
+    """Delete existing habits and load predefined habits from a JSON file."""
+    try:
+        # Opens the JSON file with the default habits
+        with open('habit_data.json', 'r') as f:
+            habit_data = json.load(f)
+        
+        habit_manager = HabitManager()
+        
+        # Eliminate all existing habits before loading new habits
+        with db.conn:
+            db.delete_all_habits()
+        click.echo("Previous habits deleted.")
+
+        # Inserting the new habits
+        for habit in habit_data['habits']:
+            habit_manager.create_habit(habit['name'], habit['periodicity'])
+            
+            
+            habits = db.get_habits()  
+            habit_id = next((h[0] for h in habits if h[1] == habit['name']), None)
+
+            if habit_id:
+                for completion_datetime_str in habit['completion_datetime']:
+                    completion_datetime = datetime.strptime(completion_datetime_str, "%Y-%m-%d %H:%M:%S")
+                    habit_manager.mark_habit_completed(habit_id, completion_datetime)
+        
+        click.echo("Predefined habits loaded successfully!")
+
+    except FileNotFoundError:
+        click.echo("Error: 'habit_data.json' file not found.")
+    except Exception as e:
+        click.echo(f"Error: {str(e)}")
 
 # Command to create a habit
 @cli.command()
@@ -54,8 +91,8 @@ def complete(habit_id, datetime_str):
 
     try:
         habit_manager = HabitManager()
-        habit_manager.mark_habit_completed(habit_id, completion_datetime)  # Pasamos datetime directamente
-        click.echo(f"Marked habit with ID: {habit_id} as completed on {completion_datetime}.")
+        habit_manager.mark_habit_completed(habit_id, completion_datetime)  # We pass datetime directly
+        
     except ValueError as e:
         click.echo(f"Error: {str(e)}")
 
@@ -117,7 +154,4 @@ import atexit
 def cleanup():
     db.close()
     analytics.close()
-
-
-
 

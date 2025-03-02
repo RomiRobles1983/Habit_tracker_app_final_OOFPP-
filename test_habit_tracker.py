@@ -24,6 +24,7 @@ def clean_db():
     db.delete_all_habits()
     db.close() 
 
+# TESTS FOR HABIT MANAGER
 #1 Create a habit with valid name and periodicity
 def test_create_habit_with_valid_name_and_periodicity(clean_db):
     """
@@ -164,34 +165,7 @@ def test_delete_habit_when_no_habits_exist(clean_db):
     with pytest.raises(ValueError, match="No habits found in the database."):
         habit_manager.delete_habit(1)  # Trying to delete an arbitrary ID
 
-#9 Mark a habit as completed when the parameters are correct.
-
-# def test_mark_habit_completed(clean_db):
-#     """Test marking a habit as completed with a valid ID and datetime."""
-    
-#     habit_manager = HabitManager()  # No necesitas pasar clean_db aquí
-
-#     # Crear un hábito y obtener su ID
-#     habit_id = habit_manager.create_habit("Read", "daily")
-    
-#     # Asegurarse de que el habit_id no es None
-#     assert habit_id is not None, "Habit ID should not be None"
-
-#     # Marcar el hábito como completado
-#     completion_datetime = datetime.now()
-#     habit_manager.mark_habit_completed(habit_id, completion_datetime)
-
-#     # Recuperar el hábito de la base de datos
-#     habit = clean_db.get_habit_by_id(habit_id)
-
-#     # Verificar que el campo de completado se haya actualizado
-#     assert habit["completion_datetime"] is not None, "Completion datetime should be set."
-#     assert habit["completion_datetime"] == completion_datetime, "Completion datetime does not match."
-
-
-    # También puedes verificar si alguna otra lógica relacionada con la completitud se ha cumplido
-
-#10 Mark a habit as completed without passing an id.
+#9 Mark a habit as completed without passing an id.
 def test_mark_habit_completed_without_id(clean_db):
     """
     Test para marcar un hábito como completado sin proporcionar un ID válido.
@@ -206,7 +180,7 @@ def test_mark_habit_completed_without_id(clean_db):
     with pytest.raises(ValueError, match="No habit found with ID None."):
         habit_manager.mark_habit_completed(None, completion_time)
 
-#11 Mark a habit with an invalid id as complete
+#10 Mark a habit with an invalid id as complete
 def test_mark_habit_completed_with_invalid_id(clean_db):
     """
     Test to mark a habit as completed with an invalid ID.
@@ -223,6 +197,20 @@ def test_mark_habit_completed_with_invalid_id(clean_db):
     # Assert that a ValueError is raised with the appropriate message
     with pytest.raises(ValueError, match=f"No habit found with ID {invalid_id}."):
         habit_manager.mark_habit_completed(invalid_id, completion_time)
+######################################################################################
+
+#TEST DATABASE OPERATIONS
+
+#11 Get the list of the habits when there are no habits
+def test_get_habits_when_there_are_no_habits(clean_db):
+    """Verifies that an empty list is returned when there are no habits in the database."""
+    habit_manager = HabitManager()
+    
+    # Retrieve the habits, it should be empty
+    habits = clean_db.get_habits()
+    
+    # Verify that the list of habits is empty
+    assert len(habits) == 0
 
 #12 Get the list of habits when there are habits
 def test_get_habits_when_there_are_habits(clean_db):
@@ -245,18 +233,7 @@ def test_get_habits_when_there_are_habits(clean_db):
     assert "Yoga" in habit_names
     assert "Drink water" in habit_names
 
-#13 Get the list of the habits when there are no habits
-def test_get_habits_when_there_are_no_habits(clean_db):
-    """Verifies that an empty list is returned when there are no habits in the database."""
-    habit_manager = HabitManager()
-    
-    # Retrieve the habits, it should be empty
-    habits = clean_db.get_habits()
-    
-    # Verify that the list of habits is empty
-    assert len(habits) == 0
-
-#14 Get the list of habits of a given periodicity
+#13 Get the list of habits of a given periodicity
 def test_get_habits_by_periodicity(clean_db):
     """Verify that habits are returned with a specific periodicity."""
     habit_manager = HabitManager()
@@ -281,7 +258,10 @@ def test_get_habits_by_periodicity(clean_db):
     assert len(weekly_habits) == 1
     assert "Yoga" in [habit[1] for habit in weekly_habits]
 
-#15 Calculation of the longest streak when no habits are registered
+
+##################################################################################
+#TEST FOR HABITS ANALYTICS
+#14 Calculation of the longest streak when no habits are registered
 def test_get_longest_streak_empty_db(clean_db):
     """Verify the calculation of the longest streak when no habits are registered."""
     analytics = Analytics(db=clean_db)
@@ -291,7 +271,7 @@ def test_get_longest_streak_empty_db(clean_db):
     
     assert longest_streak == 0  # There should be no streak if no habits exist
 
-#16 Calculation of the longest streak when no habits are registered
+#15 Calculation of the longest streak when no habits are registered
 # Calculation of daily streak with habits completed in different hours
 # Calculation of daily streak with disorganized completion dates
 # Calculation of the daily streak with duplicate completion dates
@@ -318,7 +298,7 @@ def test_calculate_streak_with_gaps():
     # The longest streak should be 2
     assert streak == 3, f"Expected streak to be 3, but got {streak}"
 
-#17 Calculation of the weekly habit streak are gaps
+#16 Calculation of the weekly habit streak are gaps
 # Calculation of weekly streak disorganized completion dates
 # Calculation of weekly streak of habits with duplicate completion dates (2 times in the same week)
 
@@ -342,7 +322,7 @@ def test_calculate_streak_weekly():
     assert streak == 3, f"Expected streak to be 3, but got {streak}"
 
 
-#18 Calculate the longest streak for a particular habit, passing as an argument the id of the habit.
+#17 Calculate the longest streak for a particular habit, passing as an argument the id of the habit.
 def test_get_longest_streak_for_habit(clean_db):
     """Verify that the function correctly returns the longest streak for a habit."""
     analytics = Analytics(db=clean_db)
@@ -375,7 +355,8 @@ def test_get_longest_streak_for_habit(clean_db):
     # The longest streak should be 5 days.
     assert longest_streak == 5, f"Expected longest streak to be 5, but got {longest_streak}"
 
-#19 Calculate the longest streak for a particular weekly habit, passing as an argument the id of the habit.
+#18 Calculate the longest streak for a particular weekly habit, passing as an argument the id of the habit.
+
 def test_get_longest_streak_for_habit_weekly(clean_db):
     """Verify that the function correctly returns the longest streak for a weekly habit with different days of the week."""
     analytics = Analytics(db=clean_db)
@@ -388,13 +369,13 @@ def test_get_longest_streak_for_habit_weekly(clean_db):
     # Dates simulating an interrupted streak on different days of the week
     dates = [
         ("2025-01-02 08:00:00",),  #1
-        ("2025-01-09 08:00:00",),  #2
-        ("2025-01-15 08:00:00",),  #3
+        ("2025-01-09 09:00:00",),  #2
+        ("2025-01-15 10:00:00",),  #3
         ("2025-01-22 08:00:00",),  #4
         # Interruption: Week of 29 January is not recorded.
-        ("2025-02-06 08:00:00",),  #1
-        ("2025-02-14 08:00:00",),  #2
-        ("2025-02-20 08:00:00",),  #3
+        ("2025-02-06 22:00:00",),  #1
+        ("2025-02-14 08:30:00",),  #2
+        ("2025-02-20 07:00:00",),  #3
         ("2025-02-27 08:00:00",),  #4
         ("2025-03-05 08:00:00",),  #5
     ]
@@ -408,7 +389,7 @@ def test_get_longest_streak_for_habit_weekly(clean_db):
     # The longest streak should be 5 weeks.
     assert longest_streak == 5, f"Expected longest streak to be 5, but got {longest_streak}"
 
-#20
+#19
 def test_get_longest_streak(clean_db):
     """Verify that the function returns the longest streak among all stored habits."""
     analytics = Analytics(db=clean_db)
