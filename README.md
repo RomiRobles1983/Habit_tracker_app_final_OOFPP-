@@ -30,7 +30,7 @@ To install and set up the Habit Tracker CLI, follow these steps:
 
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/RomiRobles1983/habit-tracker
+    git clone https://github.com/RomiRobles1983/My-habit-tracker-app-final
     ```
 
 2. Navigate to the project directory:

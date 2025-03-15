@@ -64,7 +64,7 @@ class Analytics:
     
     # Sort dates in ascending order
         dates.sort()
-        print(f"Ordered completion dates: {dates}")
+         # print(f"Ordered completion dates: {dates}")
     
         max_streak = 1
         current_streak = 1
@@ -74,16 +74,16 @@ class Analytics:
             for i in range(1, len(dates)):
                 date_diff = dates[i] - dates[i - 1]
 
-                print(f"Comparing {dates[i-1]} → {dates[i]} | Difference: {date_diff.days} days")
+                 # print(f"Comparing {dates[i-1]} → {dates[i]} | Difference: {date_diff.days} days")
         
         # If the difference is one day, continue the streak
                 if date_diff == timedelta(days=1):
                     current_streak += 1
-                    print(f"Continuing streak: {current_streak}")
+                    #print(f"Continuing streak: {current_streak}")
                 else:
             # If there is a gap, restart the streak.
                     max_streak = max(max_streak, current_streak)
-                    print(f"Streak broken! Max so far: {max_streak}")
+                     # print(f"Streak broken! Max so far: {max_streak}")
                     current_streak = 1
             max_streak = max(max_streak, current_streak)
 
@@ -98,7 +98,7 @@ class Analytics:
 
             last_year, last_week = None, None
             for year, week in sorted_weeks:
-                print(f"Checking week: {year}-W{week}")
+                 # print(f"Checking week: {year}-W{week}")
                 if last_year is None:  # First week registered
                     current_streak = 1
                 elif (year == last_year and week == last_week + 1) or (year > last_year and last_week == 52 and week == 1):
@@ -111,7 +111,7 @@ class Analytics:
                 
 
             max_streak = max(max_streak, current_streak)
-            print(f"Final max streak: {max_streak}")
+             # print(f"Final max streak: {max_streak}")
         
         return max_streak
 
